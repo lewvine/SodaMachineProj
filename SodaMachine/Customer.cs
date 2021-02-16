@@ -26,13 +26,55 @@ namespace SodaMachine
         //When all is said and done this method will return a list of coin objects that the customer will use a payment for their soda.
         public List<Coin> GatherCoinsFromWallet(Can selectedCan)
         {
-          
+            List<Coin> coins = new List<Coin>();
+            double price = selectedCan.Price;
+            double coinTotal = 0;
+
+            while (coinTotal < price && Wallet.Coins != null)
+            {
+                Console.WriteLine("Which coins would you like to use?" +
+                    "\n 1 - Quarter" +
+                    "\n 2 - Dime" +
+                    "\n 3 - Nickel" +
+                    "\n 4 - Penny");
+
+                string input = Console.ReadLine();
+
+                Coin coin = GetCoinFromWallet(input);
+
+                if (coin == null)
+                {
+                    Console.WriteLine($"You don't have any {input}s.  Please select a different coin.");
+                    GatherCoinsFromWallet(selectedCan);
+                }
+                else
+                {
+                    coinTotal += coin.Value;
+                    Wallet.Coins.Remove(coin);
+                    Console.WriteLine($"You've taken a {input} from your wallet.");
+                }
+            }
+            if(Wallet.Coins != null)
+            {
+                Console.WriteLine($"You've taken a total of ${coinTotal} from your wallet, which" +
+                    $"is enough to buy a {selectedCan.Name}.");
+                Console.ReadLine();
+                return coins;
+            }
+            else
+            {
+                Console.WriteLine($"You don't have enough coins to buy this drink.");
+                Console.ReadLine();
+                return coins;
+            }
         }
+
         //Returns a coin object from the wallet based on the name passed into it.
         //Returns null if no coin can be found
         public Coin GetCoinFromWallet(string coinName)
         {
-            
+            Wallet.Coins.Find(coin => coin.Name == coinName);
+            return null;
         }
         //Takes in a list of coin objects to add into the customers wallet.
         public void AddCoinsIntoWallet(List<Coin> coinsToAdd)
