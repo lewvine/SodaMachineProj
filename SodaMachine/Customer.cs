@@ -39,25 +39,43 @@ namespace SodaMachine
                     "\n 4 - Penny");
 
                 string input = Console.ReadLine();
+                string output = null;
+                switch (input)
+                {
+                    case "1":
+                        output = "quarter";
+                        break;
+                    case "2":
+                        output = "dime";
+                        break;
+                    case "3":
+                        output = "nickel";
+                        break;
+                    case "4":
+                        output = "penny";
+                        break;
 
-                Coin coin = GetCoinFromWallet(input);
+                }
+
+                Coin coin = GetCoinFromWallet(output);
 
                 if (coin == null)
                 {
-                    Console.WriteLine($"You don't have any {input}s.  Please select a different coin.");
+                    Console.WriteLine($"You don't have any {output}s.  Please select a different coin.");
                     GatherCoinsFromWallet(selectedCan);
                 }
                 else
                 {
                     coinTotal += coin.Value;
                     Wallet.Coins.Remove(coin);
-                    Console.WriteLine($"You've taken a {input} from your wallet.");
+                    coins.Add(coin);
+                    Console.WriteLine($"You've taken a {output} from your wallet.");
                 }
             }
             if(Wallet.Coins != null)
             {
                 Console.WriteLine($"You've taken a total of ${coinTotal} from your wallet, which" +
-                    $"is enough to buy a {selectedCan.Name}.");
+                    $" is enough to buy a {selectedCan.Name}.");
                 Console.ReadLine();
                 return coins;
             }
@@ -73,8 +91,14 @@ namespace SodaMachine
         //Returns null if no coin can be found
         public Coin GetCoinFromWallet(string coinName)
         {
-            Wallet.Coins.Find(coin => coin.Name == coinName);
-            return null;
+            if((Wallet.Coins.Find(coin => coin.Name.ToLower() == coinName) != null))
+            {
+                return Wallet.Coins.Find(coin => coin.Name.ToLower() == coinName);
+            }
+            else
+            {
+                return null;
+            }
         }
         //Takes in a list of coin objects to add into the customers wallet.
         public void AddCoinsIntoWallet(List<Coin> coinsToAdd)

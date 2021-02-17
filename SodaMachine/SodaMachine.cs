@@ -71,7 +71,13 @@ namespace SodaMachine
         //pass payment to the calculate transaction method to finish up the transaction based on the results.
         private void Transaction(Customer customer)
         {
+            
             string sodaChoice = UserInterface.SodaSelection(_inventory);
+            Can soda = GetSodaFromInventory(sodaChoice);
+
+            List<Coin> payment = customer.GatherCoinsFromWallet(soda);
+
+            CalculateTransaction(payment, soda, customer);
         }
         //Gets a soda from the inventory based on the name of the soda.
         private Can GetSodaFromInventory(string nameOfSoda)
@@ -95,29 +101,44 @@ namespace SodaMachine
             List<Coin> returnCoins = GatherChange(totalChange);
             double totalRegister = TotalCoinValue(_register);
             Can soda = GetSodaFromInventory(chosenSoda.Name);
+
+            //If the customer has put in enough money, do first IF:
             if (totalPayment >= price)
+            {
+                Console.Clear();
+                Console.WriteLine("Processing transaction, please wait.");
+                Console.ReadLine();
+                Console.Clear();
+
+                //If the soda machine has enough in the register to return change, do the second IF:
                 if (totalChange <= totalRegister)
                 {
                     _inventory.Remove(soda);
                     customer.Backpack.cans.Add(soda);
+                    Console.WriteLine($"Thank you for shopping with us today!  Here is your {soda.Name}.  You have $0.{totalChange} in change.");
                     foreach (Coin coin in returnCoins)
                     {
                         customer.Wallet.Coins.Add(coin);
                     }
                 }
                 else
+                //There is not enough money in the register to give change.
                 {
                     foreach (Coin coin in payment)
                     {
                         customer.Wallet.Coins.Add(coin);
                     }
+                    Console.WriteLine("Sorry.  Our coin register is almost empty; we don't have enough money to give you change!" +
+                        "Please come back again later.!");
                 }
+            }
             else
             {
                 foreach (Coin coin in payment)
                 {
                     customer.Wallet.Coins.Add(coin);
                 }
+                Console.WriteLine("Sorry.  You haven't put in enough coins.  Come back when you have the correct amount!");
             }
         }
         //Takes in the value of the amount of change needed.
@@ -156,7 +177,7 @@ namespace SodaMachine
         //If it does have one, return true.  Else, false.
         private bool RegisterHasCoin(string name)
         {
-            Coin coin = _register.Find(Coin => Coin.Name == name);
+            Coin coin = _register.Find(Coin => Coin.Name.ToLower() == name);
             if (coin != null)
             {
                 return true;
@@ -169,7 +190,7 @@ namespace SodaMachine
         //Returns null if no coin can be found of that name.
         private Coin GetCoinFromRegister(string name)
         {
-            Coin coin = _register.Find(Coin => Coin.Name == name);
+            Coin coin = _register.Find(Coin => Coin.Name.ToLower() == name);
             if (coin != null)
             {
                 return coin;
