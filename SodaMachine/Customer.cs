@@ -30,8 +30,9 @@ namespace SodaMachine
             double price = selectedCan.Price;
             double coinTotal = 0;
 
-            while (coinTotal < price && Wallet.Coins != null)
+            while (coinTotal < price && Wallet.Coins.Count != 0)
             {
+                                Console.Clear();
                 Console.WriteLine("Which coins would you like to use?" +
                     "\n 1 - Quarter" +
                     "\n 2 - Dime" +
@@ -64,6 +65,7 @@ namespace SodaMachine
                 {
                     Console.WriteLine($"You don't have any {output}s.  Please select a different coin.");
                     GatherCoinsFromWallet(selectedCan);
+                    Console.Clear();
                 }
                 else
                 {
@@ -71,9 +73,10 @@ namespace SodaMachine
                     Wallet.Coins.Remove(coin);
                     coins.Add(coin);
                     Console.WriteLine($"You've taken a {output} from your wallet.");
+                    Console.Clear();
                 }
             }
-            if(Wallet.Coins != null)
+            if(Wallet.Coins.Count != 0)
             {
                 Console.WriteLine($"You've taken a total of ${coinTotal} from your wallet, which" +
                     $" is enough to buy a {selectedCan.Name}.");
@@ -82,8 +85,16 @@ namespace SodaMachine
             }
             else
             {
-                Console.WriteLine($"You don't have enough coins to buy this drink.");
+                Console.WriteLine($"UH OH! \n\nYour wallet is now empty.  You don't have enough coins to buy this drink.");
                 Console.ReadLine();
+                double returnedMoney = 0;
+                for (int i = 0; i < coins.Count; i++)
+                {
+                    Wallet.Coins.Add(coins[i]);
+                    returnedMoney += coins[i].Value;
+                    coins.Remove(coins[i]);
+                }
+                Console.WriteLine($"Please take your change of ${returnedMoney}.");
                 return coins;
             }
         }
