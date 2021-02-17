@@ -54,7 +54,8 @@ namespace SodaMachine
                     case "4":
                         output = "penny";
                         break;
-
+                    default:
+                        continue;
                 }
 
                 Coin coin = GetCoinFromWallet(output);
