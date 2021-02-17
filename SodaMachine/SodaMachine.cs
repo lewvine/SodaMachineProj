@@ -30,10 +30,10 @@ namespace SodaMachine
             Dime dime = new Dime();
             Nickel nickel = new Nickel();
             Penny penny = new Penny();
-            FillRegister(20, quarter);
-            FillRegister(10, dime);
-            FillRegister(20, nickel);
-            FillRegister(50, penny);
+            //FillRegister(20, quarter);
+            //FillRegister(10, dime);
+            //FillRegister(20, nickel);
+            //FillRegister(50, penny);
         }
 
         //Member Methods (Can Do)
@@ -97,50 +97,49 @@ namespace SodaMachine
         {
             double totalPayment = TotalCoinValue(payment);
             double price = chosenSoda.Price;
-            double totalChange = Math.Round(DetermineChange(totalPayment, price), 2); 
-            List<Coin> returnCoins = GatherChange(totalChange);
+            double totalChange = Math.Round(DetermineChange(totalPayment, price), 2);
             double totalRegister = TotalCoinValue(_register);
             Can soda = GetSodaFromInventory(chosenSoda.Name);
 
-            //If the customer has put in enough money, do first IF:
-            if (totalPayment >= price)
+            //Enough coins in machine to give change
+            if (totalChange <= totalRegister)
             {
-                Console.Clear();
-                Console.WriteLine("Processing transaction, please wait.");
-                Console.ReadLine();
-                Console.Clear();
-
-                //If the soda machine has enough in the register to return change, do the second IF:
-                if (totalChange <= totalRegister)
+                //Received enough payment
+                if (totalPayment >= price)
                 {
+                    List<Coin> returnCoins = GatherChange(totalChange);
+                    Console.Clear();
+                    Console.WriteLine("Processing transaction, please wait.");
+                    Console.ReadLine();
+                    Console.Clear();
+
                     _inventory.Remove(soda);
                     customer.Backpack.cans.Add(soda);
                     Console.WriteLine($"Thank you for shopping with us today!  Here is your {soda.Name}.  You have ${totalChange} in change.");
-                    foreach (Coin coin in returnCoins)
-                    {
-                        customer.Wallet.Coins.Add(coin);
-                    }
                 }
+                //Did not receive enough payment.
                 else
-                //There is not enough money in the register to give change.
                 {
                     foreach (Coin coin in payment)
                     {
                         customer.Wallet.Coins.Add(coin);
                     }
-                    Console.WriteLine("Sorry.  Our coin register is almost empty; we don't have enough money to give you change!" +
-                        "Please come back again later.!");
+                    Console.WriteLine("Sorry.  You haven't put in enough coins.  Come back when you have the correct amount!");
                 }
             }
+            //Not enough coins in machine to give change
             else
             {
+                Console.WriteLine("Sorry.  Our coin register is almost empty; we don't have " +
+                    "enough money to give you change!  Please come back again later.!");
                 foreach (Coin coin in payment)
                 {
                     customer.Wallet.Coins.Add(coin);
                 }
-                Console.WriteLine("Sorry.  You haven't put in enough coins.  Come back when you have the correct amount!");
             }
         }
+
+
         //Takes in the value of the amount of change needed.
         //Attempts to gather all the required coins from the sodamachine's register to make change.
         //Returns the list of coins as change to despense.
