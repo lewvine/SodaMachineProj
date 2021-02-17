@@ -97,7 +97,7 @@ namespace SodaMachine
         {
             double totalPayment = TotalCoinValue(payment);
             double price = chosenSoda.Price;
-            double totalChange = DetermineChange(totalPayment, price);
+            double totalChange = Math.Round(DetermineChange(totalPayment, price), 2); 
             List<Coin> returnCoins = GatherChange(totalChange);
             double totalRegister = TotalCoinValue(_register);
             Can soda = GetSodaFromInventory(chosenSoda.Name);
@@ -115,7 +115,7 @@ namespace SodaMachine
                 {
                     _inventory.Remove(soda);
                     customer.Backpack.cans.Add(soda);
-                    Console.WriteLine($"Thank you for shopping with us today!  Here is your {soda.Name}.  You have $0.{totalChange} in change.");
+                    Console.WriteLine($"Thank you for shopping with us today!  Here is your {soda.Name}.  You have ${totalChange} in change.");
                     foreach (Coin coin in returnCoins)
                     {
                         customer.Wallet.Coins.Add(coin);
@@ -153,12 +153,12 @@ namespace SodaMachine
 
             while (changeValue > totalChange)
             {
-                for(int i = 0; i <= coinNames.Count; i++) 
+                for(int i = 0; i <= coinNames.Count - 1; i++) 
                 {
-                    if(RegisterHasCoin(coinNames[i]))
+                    if (RegisterHasCoin(coinNames[i]))
                     {
                         Coin coin = GetCoinFromRegister(coinNames[i]);
-                        while(coin.Value >= changeValue)
+                        while (coin.Value <= Math.Round(changeValue,2))
                         {
                             change.Add(coin);
                             _register.Remove(coin);
@@ -177,7 +177,7 @@ namespace SodaMachine
         //If it does have one, return true.  Else, false.
         private bool RegisterHasCoin(string name)
         {
-            Coin coin = _register.Find(Coin => Coin.Name.ToLower() == name);
+            Coin coin = _register.Find(thing => thing.Name.ToLower() == name);
             if (coin != null)
             {
                 return true;
@@ -190,7 +190,7 @@ namespace SodaMachine
         //Returns null if no coin can be found of that name.
         private Coin GetCoinFromRegister(string name)
         {
-            Coin coin = _register.Find(Coin => Coin.Name.ToLower() == name);
+            Coin coin = _register.Find(item => item.Name.ToLower() == name);
             if (coin != null)
             {
                 return coin;
