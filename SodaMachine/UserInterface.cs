@@ -129,19 +129,26 @@ namespace SodaMachine
             Tuple<bool, string> validatedSodaSelection;
             List<Can> uniqueCans = GetUniqueCans(SodaOptions);
             int selection;
-            do
+            if (uniqueCans.Count < 1)
             {
-                Console.WriteLine("\nPlease choose from the following.");
-                for (int i = 0; i < uniqueCans.Count; i++)
+                Console.WriteLine("Sorry.  We're currently sold out!");
+                Console.ReadLine();
+                return null;
+            }
+            else
+            {
+                do
                 {
-                    Console.WriteLine($"\n\tEnter -{i + 1}- for {uniqueCans[i].Name} : ${uniqueCans[i].Price}");
-                }
-                int.TryParse(Console.ReadLine(), out selection);
-                validatedSodaSelection = ValidateSodaSelection(selection, uniqueCans);
-            } while (!validatedSodaSelection.Item1);
-
-            return validatedSodaSelection.Item2;
-           
+                    Console.WriteLine("\nPlease choose from the following.");
+                    for (int i = 0; i < uniqueCans.Count; i++)
+                    {
+                        Console.WriteLine($"\n\tEnter -{i + 1}- for {uniqueCans[i].Name} : ${uniqueCans[i].Price}");
+                    }
+                    int.TryParse(Console.ReadLine(), out selection);
+                    validatedSodaSelection = ValidateSodaSelection(selection, uniqueCans);
+                } while (!validatedSodaSelection.Item1 && uniqueCans.Count > 0);
+                return validatedSodaSelection.Item2;
+            } 
         }
 
 

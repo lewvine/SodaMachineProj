@@ -20,7 +20,7 @@ namespace SodaMachine
             Nickel nickel = new Nickel();
             Penny penny = new Penny();
 
-            FillRegister(10, quarter);
+            FillRegister(1, quarter);
             FillRegister(5, dime);
             FillRegister(12, nickel);
             FillRegister(15, penny);

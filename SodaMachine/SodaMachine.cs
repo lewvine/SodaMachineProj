@@ -30,10 +30,10 @@ namespace SodaMachine
             Dime dime = new Dime();
             Nickel nickel = new Nickel();
             Penny penny = new Penny();
-            //FillRegister(20, quarter);
-            //FillRegister(10, dime);
-            //FillRegister(20, nickel);
-            //FillRegister(50, penny);
+            FillRegister(20, quarter);
+            FillRegister(10, dime);
+            FillRegister(20, nickel);
+            FillRegister(50, penny);
         }
 
         //Member Methods (Can Do)
@@ -88,32 +88,32 @@ namespace SodaMachine
         //If the payment is greater than the cost of the soda, but the machine does not have ample change: Despense payment back to the customer.
         //If the payment is exact to the cost of the soda:  Despense soda.
         //If the payment does not meet the cost of the soda: despense payment back to the customer.
-        private void CalculateTransaction(List<Coin> payment, Can chosenSoda, Customer customer)
+        private void CalculateTransaction(List<Coin> payment, Can soda, Customer customer)
         {
             double totalPayment = TotalCoinValue(payment);
-            double price = chosenSoda.Price;
-            double totalChange = Math.Round(DetermineChange(totalPayment, price), 2);
-            List<Coin> change = GatherChange(totalChange);
 
-            DepositCoinsIntoRegister(_register, payment);
             double totalRegister = TotalCoinValue(_register);
+            double price = soda.Price;
+            double totalChange = Math.Round(DetermineChange(totalPayment, price), 2);
 
-
-            Can soda = GetSodaFromInventory(chosenSoda.Name);
-
-            //Enough coins in machine to give change
+            UserInterface.OutputText("Processing transaction, please hit enter to continue.");
+            Console.ReadLine();
+            //Make sure register has enough money && the right kinds of money, before calculating change.
             if (totalChange <= totalRegister)
             {
-                //Received enough payment
-                //Remove soda from machine.
-                //Give change to wallet.
-                //Add soda to backpack.
-                if (totalPayment >= price)
+                List<Coin> change = GatherChange(totalChange);
+                DepositCoinsIntoRegister(payment, _register);
+
+                if (totalPayment >= price && change != null)
                 {
                     UserInterface.OutputText("Processing transaction, please wait.");
 
+                    //Received enough payment
+                    //Remove soda from machine.
+                    //Give change to wallet.
+                    //Add soda to backpack.
                     _inventory.Remove(soda);
-                    DepositCoinsIntoRegister(customer.Wallet.Coins, change);
+                    DepositCoinsIntoRegister(change, customer.Wallet.Coins);
                     customer.Backpack.cans.Add(soda);
 
                     UserInterface.EndMessage(soda.Name, totalChange);
@@ -122,15 +122,13 @@ namespace SodaMachine
                 //Return entire payment to wallet.
                 else
                 {
-                    DepositCoinsIntoRegister(customer.Wallet.Coins, payment);
+                    DepositCoinsIntoRegister(payment, customer.Wallet.Coins);
                     UserInterface.OutputText("Sorry.  You haven't put in enough coins.  Come back when you have the correct amount!");
                 }
             }
-            //Not enough coins in machine to give change.
-            //Return entire payment to wallet.
             else
             {
-                DepositCoinsIntoRegister(customer.Wallet.Coins, payment);
+                DepositCoinsIntoRegister(payment, customer.Wallet.Coins);
                 UserInterface.OutputText("Sorry.  Our coin register is almost empty; we don't have " +
                     "enough money to give you change!  Please come back again later.!");
             }
@@ -145,23 +143,32 @@ namespace SodaMachine
         {
             double totalChange = 0;
             List<Coin> change = new List<Coin>();
-            List<String> coinNames = new List<string>() { "quarter", "dime", "nickel", "penny" };
+            List<String> coinNames = new List<string>() { "Quarter", "Dime", "Nickel", "Penny" };
 
-            while (changeValue > totalChange)
+            while (changeValue > totalChange && _register.Count != 0)
             {
                 for(int i = 0; i <= coinNames.Count - 1; i++) 
                 {
                     if (RegisterHasCoin(coinNames[i]))
                     {
                         Coin coin = GetCoinFromRegister(coinNames[i]);
-                        while (coin.Value <= Math.Round(changeValue,2))
+                        while (Math.Round(coin.Value, 2) <= Math.Round(changeValue, 2))
                         {
                             change.Add(coin);
                             _register.Remove(coin);
-                            totalChange += coin.Value;
-                            changeValue -= coin.Value;
+                            totalChange += Math.Round(coin.Value, 2);
+                            changeValue -= Math.Round(coin.Value, 2);
+                        }
+                        if (i == coinNames.Count - 1)
+                        {
+                            return null;
+                        }
+                        else
+                        {
+                            return change;
                         }
                     }
+   
 
                 }
             }
@@ -172,7 +179,7 @@ namespace SodaMachine
         //Takes string of coin name and returns true or false
         private bool RegisterHasCoin(string name)
         {
-            Coin coin = _register.Find(thing => thing.Name.ToLower() == name);
+            Coin coin = _register.Find(thing => thing.Name == name);
             if (coin != null)
             {
                 return true;
@@ -183,7 +190,7 @@ namespace SodaMachine
         //Takes string of coin name and returns coin object / null
         private Coin GetCoinFromRegister(string name)
         {
-            Coin coin = _register.Find(item => item.Name.ToLower() == name);
+            Coin coin = _register.Find(item => item.Name == name);
             if (coin != null)
             {
                 return coin;
