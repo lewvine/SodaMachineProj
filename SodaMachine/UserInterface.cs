@@ -27,6 +27,8 @@ namespace SodaMachine
             }
         
         }
+
+
         //For printing out an error message for user to see.  Has built in console clear
         public static void DisplayError(string error)
         {
@@ -34,15 +36,17 @@ namespace SodaMachine
             Console.ReadLine();
             Console.Clear();
         }
+
+
         //Method for getting user input for the selected coin.
         //Uses a tuple to help group valadation boolean and normalized selection name.
-        public static string CoinSelection(Can selectedCan, List<Coin> paymnet)
+        public static string CoinSelection(Can selectedCan, List<Coin> payment)
         {
             Tuple<bool, string> validatedSelection;
             do
             {
                 DisplayCost(selectedCan);
-                DiplayTotalValueOfCoins(paymnet);
+                DiplayTotalValueOfCoins(payment);
                 Console.WriteLine("\n");
                 Console.WriteLine("Enter -1- for Quarter");
                 Console.WriteLine("Enter -2- for Dime");
@@ -83,6 +87,8 @@ namespace SodaMachine
                     return Tuple.Create(false, "Null");
             }
         }
+
+
         //Takes in a list of sodas and returns only unqiue sodas from it.
         private static List<Can> GetUniqueCans(List<Can> SodaOptions)
         {
@@ -103,6 +109,8 @@ namespace SodaMachine
             return UniqueCans;
 
         }
+
+
         //Takes in a list of sodas to print.
         public static void PrintOptions(List<Can> SodaOptions)
         {
@@ -113,6 +121,8 @@ namespace SodaMachine
                 Console.WriteLine($"\t{can.Name}");
            }
         }
+
+
         //Takes in the inventory of sodas to provide the user with an interface for their selection.
         public static string SodaSelection(List<Can> SodaOptions)
         {
@@ -133,6 +143,8 @@ namespace SodaMachine
             return validatedSodaSelection.Item2;
            
         }
+
+
         //Uses a tuple to validate the soda selection.
         private static Tuple<bool,string> ValidateSodaSelection(int input, List<Can> uniqueCans)
         {
@@ -147,10 +159,14 @@ namespace SodaMachine
             }
         }
         //Takes in a string to output to the console.
+
+
         public static void OutputText(string output)
         {
             Console.WriteLine(output);
         }
+
+
         //Used for any user prompts that use a yes or now format.
         public static bool ContinuePrompt(string output)
         {
