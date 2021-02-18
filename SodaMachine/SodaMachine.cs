@@ -38,7 +38,6 @@ namespace SodaMachine
 
         //Member Methods (Can Do)
 
-        //A method to fill the sodamachines register with coin objects.
         public void FillRegister(int x, Coin type)
         {
             for(int i = 0; i < x; i++)
@@ -46,7 +45,6 @@ namespace SodaMachine
                 _register.Add(type);
             }
         }
-        //A method to fill the sodamachines inventory with soda can objects.
         public void FillInventory(int x, Can type)
         {
             for (int i = 0; i < x; i++)
@@ -54,8 +52,6 @@ namespace SodaMachine
                 _inventory.Add(type);
             }
         }
-        //Method to be called to start a transaction.
-        //Takes in a customer which can be passed freely to which ever method needs it.
         public void BeginTransaction(Customer customer)
         {
             bool willProceed = UserInterface.DisplayWelcomeInstructions(_inventory);
@@ -64,27 +60,26 @@ namespace SodaMachine
                 Transaction(customer);
             }
         }
-        
-        //This is the main transaction logic think of it like "runGame".  This is where the user will be prompted for the desired soda.
-        //grab the desired soda from the inventory.
-        //get payment from the user.
-        //pass payment to the calculate transaction method to finish up the transaction based on the results.
+
+
+       
+        //Get soda, take take, pass payment to CalculateTransaction method.
         private void Transaction(Customer customer)
         {
-            
             string sodaChoice = UserInterface.SodaSelection(_inventory);
             Can soda = GetSodaFromInventory(sodaChoice);
-
             List<Coin> payment = customer.GatherCoinsFromWallet(soda);
 
             CalculateTransaction(payment, soda, customer);
         }
-        //Gets a soda from the inventory based on the name of the soda.
+
+        //Takes string and returns Soda object.
         private Can GetSodaFromInventory(string nameOfSoda)
         {
             Can soda = _inventory.Find(item => item.Name == nameOfSoda);
             return soda;
         }
+
 
         //This is the main method for calculating the result of the transaction.
         //It takes in the payment from the customer, the soda object they selected, and the customer who is purchasing the soda.
@@ -98,44 +93,46 @@ namespace SodaMachine
             double totalPayment = TotalCoinValue(payment);
             double price = chosenSoda.Price;
             double totalChange = Math.Round(DetermineChange(totalPayment, price), 2);
+            List<Coin> change = GatherChange(totalChange);
+
+            DepositCoinsIntoRegister(_register, payment);
             double totalRegister = TotalCoinValue(_register);
+
+
             Can soda = GetSodaFromInventory(chosenSoda.Name);
 
             //Enough coins in machine to give change
             if (totalChange <= totalRegister)
             {
                 //Received enough payment
+                //Remove soda from machine.
+                //Give change to wallet.
+                //Add soda to backpack.
                 if (totalPayment >= price)
                 {
-                    List<Coin> returnCoins = GatherChange(totalChange);
-                    Console.Clear();
-                    Console.WriteLine("Processing transaction, please wait.");
-                    Console.ReadLine();
-                    Console.Clear();
+                    UserInterface.OutputText("Processing transaction, please wait.");
 
                     _inventory.Remove(soda);
+                    DepositCoinsIntoRegister(customer.Wallet.Coins, change);
                     customer.Backpack.cans.Add(soda);
-                    Console.WriteLine($"Thank you for shopping with us today!  Here is your {soda.Name}.  You have ${totalChange} in change.");
+
+                    UserInterface.EndMessage(soda.Name, totalChange);
                 }
                 //Did not receive enough payment.
+                //Return entire payment to wallet.
                 else
                 {
-                    foreach (Coin coin in payment)
-                    {
-                        customer.Wallet.Coins.Add(coin);
-                    }
-                    Console.WriteLine("Sorry.  You haven't put in enough coins.  Come back when you have the correct amount!");
+                    DepositCoinsIntoRegister(customer.Wallet.Coins, payment);
+                    UserInterface.OutputText("Sorry.  You haven't put in enough coins.  Come back when you have the correct amount!");
                 }
             }
-            //Not enough coins in machine to give change
+            //Not enough coins in machine to give change.
+            //Return entire payment to wallet.
             else
             {
-                Console.WriteLine("Sorry.  Our coin register is almost empty; we don't have " +
+                DepositCoinsIntoRegister(customer.Wallet.Coins, payment);
+                UserInterface.OutputText("Sorry.  Our coin register is almost empty; we don't have " +
                     "enough money to give you change!  Please come back again later.!");
-                foreach (Coin coin in payment)
-                {
-                    customer.Wallet.Coins.Add(coin);
-                }
             }
         }
 
@@ -172,8 +169,7 @@ namespace SodaMachine
         }
 
 
-        //Reusable method to check if the register has a coin of that name.
-        //If it does have one, return true.  Else, false.
+        //Takes string of coin name and returns true or false
         private bool RegisterHasCoin(string name)
         {
             Coin coin = _register.Find(thing => thing.Name.ToLower() == name);
@@ -184,9 +180,7 @@ namespace SodaMachine
             return false;
         }
 
-
-        //Reusable method to return a coin from the register.
-        //Returns null if no coin can be found of that name.
+        //Takes string of coin name and returns coin object / null
         private Coin GetCoinFromRegister(string name)
         {
             Coin coin = _register.Find(item => item.Name.ToLower() == name);
@@ -221,11 +215,11 @@ namespace SodaMachine
 
 
         //Puts a list of coins into the soda machines register.
-        private void DepositCoinsIntoRegister(List<Coin> coins)
+        private void DepositCoinsIntoRegister(List<Coin> deposit, List<Coin> register)
         {
-            foreach (Coin coin in coins)
+            foreach (Coin coin in deposit)
             {
-                _register.Add(coin);
+                register.Add(coin);
             }
         }
     }

@@ -163,6 +163,7 @@ namespace SodaMachine
 
         public static void OutputText(string output)
         {
+            Console.Clear();
             Console.WriteLine(output);
         }
 
